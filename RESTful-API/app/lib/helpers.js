@@ -8,13 +8,15 @@ var crypto = require('crypto');
 var config = require('./config');
 var https = require('https');
 var querystring = require('querystring');
+var path = require('path');
+var fs = require('fs');
 
 // Container for all the helpers
 var helpers = {};
 
 // Create a SHA256 hash
-helpers.hash = function(str) {
-    if (typeof(str) == 'string' && str.length > 0) {
+helpers.hash = function (str) {
+    if (typeof (str) == 'string' && str.length > 0) {
         var hash = crypto.createHmac('sha256', config.hashingSecret).update(str).digest('hex');
 
         return hash;
@@ -24,7 +26,7 @@ helpers.hash = function(str) {
 };
 
 // Parse a JSON string to an object in all cases, without throwing
-helpers.parseJsonToObject = function(str) {
+helpers.parseJsonToObject = function (str) {
     try {
         var obj = JSON.parse(str);
 
@@ -35,12 +37,12 @@ helpers.parseJsonToObject = function(str) {
 }
 
 // Create a string of random alphanumeric charachters, of a given length
-helpers.createRandomString = function(strLength) {
+helpers.createRandomString = function (strLength) {
     strLength =
-        typeof(strLength) == 'number' &&
-        strLength > 0 ?
-        strLength :
-        false;
+        typeof (strLength) == 'number' &&
+            strLength > 0 ?
+            strLength :
+            false;
 
     if (strLength) {
         // Define all the possible charachter that could fo into a string
@@ -52,7 +54,7 @@ helpers.createRandomString = function(strLength) {
             // Get a random charachter from the possibleCharachters string
             var randomCharachter =
                 possibleCharachters
-                .charAt(Math.floor(Math.random() * possibleCharachters.length));
+                    .charAt(Math.floor(Math.random() * possibleCharachters.length));
 
             // Append this charachter to the final string
             str += randomCharachter;
@@ -66,20 +68,20 @@ helpers.createRandomString = function(strLength) {
 };
 
 // Send an SMS message via Twilio
-helpers.sendTwilioSms = function(phone, msg, callback) {
+helpers.sendTwilioSms = function (phone, msg, callback) {
     // Validate parameters
     phone =
-        typeof(phone) == 'string' &&
-        phone.trim().length >= 10 ?
-        phone.trim() :
-        false;
+        typeof (phone) == 'string' &&
+            phone.trim().length >= 10 ?
+            phone.trim() :
+            false;
 
     msg =
-        typeof(msg) == 'string' &&
-        msg.trim().length > 0 &&
-        msg.trim().length <= 1600 ?
-        msg.trim() :
-        false;
+        typeof (msg) == 'string' &&
+            msg.trim().length > 0 &&
+            msg.trim().length <= 1600 ?
+            msg.trim() :
+            false;
 
     if (phone && msg) {
         // Configure the request payload
@@ -106,7 +108,7 @@ helpers.sendTwilioSms = function(phone, msg, callback) {
         };
 
         // Instantiate the request object
-        var req = https.request(requestDetails, function(res) {
+        var req = https.request(requestDetails, function (res) {
             // Grab the status of the sent request
             var status = res.statusCode;
             // Callback successfully if the request went through
@@ -118,7 +120,7 @@ helpers.sendTwilioSms = function(phone, msg, callback) {
         });
 
         // Bind to the error event so it doesn't get thrown
-        req.on('error', function(e) {
+        req.on('error', function (e) {
             callback(e);
         });
 
@@ -132,5 +134,25 @@ helpers.sendTwilioSms = function(phone, msg, callback) {
         callback('Given parameters were missing or invalid');
     }
 }
+
+// Get the string content of a template
+helpers.getTemplate = function (templateName, callback) {
+    templateName = typeof (templateName) == 'string' && templateName.length > 0 ? templateName : false;
+
+    if (templateName) {
+        var templatesDir = path.join(__dirname, '/../templates/');
+        fs.readFile(templatesDir + templateName + '.html', 'utf8', function (err, str) {
+            if (!err && str && str.length > 0) {
+                callback(false, str);
+            } else {
+                callback('No template could be found');
+            }
+        });
+    } else {
+        callback('A valid template name was not specified');
+    }
+};
+
+
 
 module.exports = helpers;
