@@ -8,7 +8,6 @@ var readline = require('readline');
 var util = require('util');
 var debug = util.debuglog('cli');
 var events = require('events');
-const { processCheckOutcome } = require('./workers');
 
 class _events extends events { };
 var e = new _events();

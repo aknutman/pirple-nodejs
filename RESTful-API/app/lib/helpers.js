@@ -10,7 +10,6 @@ var https = require('https');
 var querystring = require('querystring');
 var path = require('path');
 var fs = require('fs');
-const { type } = require('os');
 
 // Container for all the helpers
 var helpers = {};
