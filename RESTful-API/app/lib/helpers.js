@@ -17,6 +17,11 @@ var sendTwilioSms = require('./helpers/sendTwilioSms');
 // Container for all the helpers
 var helpers = {};
 
+// Sample for testing that simply returns a number
+helpers.getANumber = function () {
+    return 1;
+}
+
 // Create a SHA256 hash
 helpers.hash = function (str) {
     if (typeof (str) == 'string' && str.length > 0) {
